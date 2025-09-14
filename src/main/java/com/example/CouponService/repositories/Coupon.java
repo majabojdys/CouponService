@@ -3,7 +3,6 @@ package com.example.CouponService.repositories;
 import com.example.CouponService.commons.Country;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
 import java.time.Instant;
 import java.util.Objects;
 
@@ -13,18 +12,20 @@ public class Coupon {
     @Id
     private String couponCode;
     private Instant creationDate;
+    private Country country;
     private Integer maxNumberOfUses;
     private Integer currentNumberOfUses;
-    private Country country;
+
 
     public Coupon() {
     }
 
-    public Coupon(String couponCode, Instant creationDate, Integer maxNumberOfUses, Country country) {
+    public Coupon(String couponCode, Instant creationDate,  Country country, Integer maxNumberOfUses) {
         this.couponCode = couponCode;
         this.creationDate = creationDate;
-        this.maxNumberOfUses = maxNumberOfUses;
         this.country = country;
+        this.maxNumberOfUses = maxNumberOfUses;
+        this.currentNumberOfUses = 0;
     }
 
     public String getCouponCode() {
@@ -71,11 +72,11 @@ public class Coupon {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Coupon coupon = (Coupon) o;
-        return Objects.equals(couponCode, coupon.couponCode) && Objects.equals(creationDate, coupon.creationDate) && Objects.equals(maxNumberOfUses, coupon.maxNumberOfUses) && Objects.equals(currentNumberOfUses, coupon.currentNumberOfUses) && country == coupon.country;
+        return Objects.equals(couponCode, coupon.couponCode) && Objects.equals(creationDate, coupon.creationDate) && country == coupon.country && Objects.equals(maxNumberOfUses, coupon.maxNumberOfUses) && Objects.equals(currentNumberOfUses, coupon.currentNumberOfUses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(couponCode, creationDate, maxNumberOfUses, currentNumberOfUses, country);
+        return Objects.hash(couponCode, creationDate, country, maxNumberOfUses, currentNumberOfUses);
     }
 }

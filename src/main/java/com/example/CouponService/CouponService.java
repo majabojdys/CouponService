@@ -24,6 +24,6 @@ public class CouponService {
         if(couponRepository.existsByCouponCodeIgnoreCase(dtoCouponRequest.couponCode())){
             throw new CouponAlreadyExistException(dtoCouponRequest.couponCode());
         }
-        couponRepository.save(new Coupon(dtoCouponRequest.couponCode(), Instant.now(clock), dtoCouponRequest.maxUsages(), dtoCouponRequest.country()));
+        couponRepository.save(new Coupon(dtoCouponRequest.couponCode(), Instant.now(clock), dtoCouponRequest.country(), dtoCouponRequest.maxUsages()));
     }
 }
