@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 
-public class CouponIntegrationTest extends IntegrationTest {
+class CouponIntegrationTest extends IntegrationTest {
 
     @Test
     public void addNewCouponIntegrationTestHappyPath() {
@@ -43,7 +43,7 @@ public class CouponIntegrationTest extends IntegrationTest {
         //when
         var response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons", dtoCoupon, Error.class);
 
-        // then
+        //then
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         Assertions.assertEquals("COUPON_ALREADY_EXIST", response.getBody().errorCode());

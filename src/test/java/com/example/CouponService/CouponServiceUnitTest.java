@@ -11,7 +11,7 @@ import java.time.Clock;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 
-public class CouponServiceUnitTest {
+class CouponServiceUnitTest {
 
     private final CouponRepository couponRepository = Mockito.mock(CouponRepository.class);
     private final Clock clock = ClockFactory.getFixedClock();
