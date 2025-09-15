@@ -1,7 +1,10 @@
 package com.example.CouponService;
 
 import com.example.CouponService.dtos.DtoCouponRequest;
-import com.example.CouponService.exceptions.CouponAlreadyExistException;
+import com.example.CouponService.dtos.DtoCouponUsageRequest;
+import com.example.CouponService.exceptions.CouponAlreadyExistsException;
+import com.example.CouponService.exceptions.CouponDoesNotExistException;
+import com.example.CouponService.exceptions.CouponUsageLimitExceededException;
 import com.example.CouponService.repositories.Coupon;
 import com.example.CouponService.repositories.CouponRepository;
 import org.springframework.stereotype.Service;
@@ -22,8 +25,17 @@ public class CouponService {
 
     public void addNewCoupon(DtoCouponRequest dtoCouponRequest) {
         if(couponRepository.existsByCouponCodeIgnoreCase(dtoCouponRequest.couponCode())){
-            throw new CouponAlreadyExistException(dtoCouponRequest.couponCode());
+            throw new CouponAlreadyExistsException(dtoCouponRequest.couponCode());
         }
         couponRepository.save(new Coupon(dtoCouponRequest.couponCode(), Instant.now(clock), dtoCouponRequest.country(), dtoCouponRequest.maxUsages()));
+    }
+
+    public void useCoupon(String couponCode, String userId) {
+        Coupon coupon = couponRepository.findById(couponCode).orElseThrow(() -> new CouponDoesNotExistException(couponCode));
+        if (coupon.getCurrentNumberOfUses() >= coupon.getMaxNumberOfUses()){
+            throw new CouponUsageLimitExceededException(couponCode);
+        }
+        coupon.setCurrentNumberOfUses(coupon.getCurrentNumberOfUses()+1);
+        couponRepository.save(coupon);
     }
 }

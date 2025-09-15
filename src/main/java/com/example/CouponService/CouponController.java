@@ -1,11 +1,9 @@
 package com.example.CouponService;
 
 import com.example.CouponService.dtos.DtoCouponRequest;
+import com.example.CouponService.dtos.DtoCouponUsageRequest;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -20,6 +18,12 @@ class CouponController {
     @PostMapping("/coupons")
     void addNewCoupon(@RequestBody @Valid DtoCouponRequest dtoCouponRequest){
         couponService.addNewCoupon(dtoCouponRequest);
+    }
+
+    @PostMapping("/coupons/{couponCode}/apply")
+    void useCoupon(@PathVariable String couponCode,
+                   @RequestBody DtoCouponUsageRequest dtoCouponUsageRequest){
+        couponService.useCoupon(couponCode, dtoCouponUsageRequest.userId());
     }
 
 }

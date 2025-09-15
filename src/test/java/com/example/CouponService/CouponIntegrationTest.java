@@ -2,6 +2,7 @@ package com.example.CouponService;
 
 import com.example.CouponService.commons.Error;
 import com.example.CouponService.dtos.DtoCouponRequest;
+import com.example.CouponService.dtos.DtoCouponUsageRequest;
 import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
 import com.example.CouponService.repositories.Coupon;
@@ -35,7 +36,7 @@ class CouponIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    public void addNewCouponIntegrationTestExceptionPath() {
+    public void addNewCouponIntegrationTest_CouponAlreadyExistException() {
         //given
         DtoCouponRequest dtoCoupon = CouponFactory.createDefaultDtoCoupon();
         couponRepository.save(CouponFactory.createDefaultCoupon());
@@ -47,7 +48,24 @@ class CouponIntegrationTest extends IntegrationTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         Assertions.assertEquals("COUPON_ALREADY_EXIST", response.getBody().errorCode());
-        Assertions.assertEquals("Coupon with ID: default coupon already exist.", response.getBody().errorDescription());
+        Assertions.assertEquals("Coupon with ID: default_coupon already exist.", response.getBody().errorDescription());
+    }
+
+    @Test
+    public void useCouponIntegrationTestHappyPath() {
+        //given
+        Coupon coupon = CouponFactory.createDefaultCoupon();
+        couponRepository.save(coupon);
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("user_id");
+
+        //when
+        ResponseEntity<Void> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Void.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        Coupon result = couponRepository.findById(coupon.getCouponCode()).get();
+        Assertions.assertEquals(1, result.getCurrentNumberOfUses());
     }
 
 }

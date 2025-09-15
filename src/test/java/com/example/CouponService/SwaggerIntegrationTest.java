@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-class SwaggerIntegrationTest extends IntegrationTest{
+class SwaggerIntegrationTest extends IntegrationTest {
 
     @Test
     void shouldServeSwaggerUi() {

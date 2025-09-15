@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 class ControllerAdvice {
 
-    @ExceptionHandler(CouponAlreadyExistException.class)
-    ResponseEntity<Error> handleCouponAlreadyException(CouponAlreadyExistException ex) {
+    @ExceptionHandler(CouponAlreadyExistsException.class)
+    ResponseEntity<Error> handleCouponAlreadyException(CouponAlreadyExistsException ex) {
         Error error = new Error("COUPON_ALREADY_EXIST", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
