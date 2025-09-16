@@ -27,12 +27,6 @@ import static org.mockito.Mockito.doThrow;
 
 class CouponIntegrationTest extends IntegrationTest {
 
-    @MockitoSpyBean
-    private CouponUsageRepository couponUsageRepository;
-
-    @MockitoSpyBean
-    private CouponRepository couponRepository;
-
     @Test
     public void addNewCouponIntegrationTestHappyPath() {
         //given

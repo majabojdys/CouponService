@@ -7,13 +7,13 @@ import org.springframework.http.ResponseEntity;
 
 class SwaggerIntegrationTest extends IntegrationTest {
 
-//    @Test
-//    void shouldServeSwaggerUi() {
-//        //when
-//        ResponseEntity<String> response = restTemplate.getForEntity("/swaggers", String.class);
-//
-//        //then
-//        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-//        Assertions.assertTrue(response.getBody().contains("swagger-ui"));
-//    }
+    @Test
+    void shouldServeSwaggerUi() {
+        //when
+        ResponseEntity<String> response = restTemplate.getForEntity("/swaggers", String.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertTrue(response.getBody().contains("swagger-ui"));
+    }
 }
