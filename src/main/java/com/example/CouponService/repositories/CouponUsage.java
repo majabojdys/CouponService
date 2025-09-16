@@ -6,17 +6,25 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
+@Table(
+        name = "coupon_usages",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "coupon_code"})
+)
 public class CouponUsage {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private String userId;
-    @Column(name = "used_at")
+    @Column(name = "used_at", nullable = false)
     private Instant usedAt;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_code", referencedColumnName = "coupon_code")
+    @JoinColumn(name = "coupon_code",
+            referencedColumnName = "coupon_code",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_coupon_usage_coupon")
+    )
     private Coupon coupon;
 
     public CouponUsage() {

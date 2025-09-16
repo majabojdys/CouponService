@@ -7,20 +7,23 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
+@Table(name = "coupons")
 public class Coupon {
 
     @Id
     @Column(name = "coupon_code")
     private String couponCode;
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", nullable = false)
     private Instant creationDate;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Country country;
-    @Column(name = "max_number_of_uses")
+    @Column(name = "max_number_of_uses", nullable = false)
     private Integer maxNumberOfUses;
-    @Column(name = "current_number_of_uses")
+    @Column(name = "current_number_of_uses", nullable = false)
     private Integer currentNumberOfUses;
     @Version
+    @Column(nullable = false)
     private Integer version;
 
     public Coupon() {

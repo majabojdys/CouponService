@@ -22,7 +22,7 @@ public abstract class IntegrationTest {
     @Container
     @ServiceConnection
     protected static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:15")
+            new PostgreSQLContainer<>("postgres:16")
                     .withDatabaseName("testdb")
                     .withUsername("test")
                     .withPassword("test");
