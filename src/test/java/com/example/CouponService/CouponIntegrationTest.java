@@ -18,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
+import java.util.concurrent.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -127,5 +128,36 @@ class CouponIntegrationTest extends IntegrationTest {
 
         Coupon result = couponRepository.findById(coupon.getCouponCode()).get();
         Assertions.assertEquals(0, result.getCurrentNumberOfUses());
+    }
+
+    @Test
+    public void useCouponIntegration_OptimisticLockingAndRetry() throws InterruptedException, ExecutionException {
+        //given
+        Coupon coupon = CouponFactory.createDefaultCoupon();
+        couponRepository.save(coupon);
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+
+        //when
+        Future<ResponseEntity<Void>> future1 = callCouponUsage(executorService, "userId1");
+        Future<ResponseEntity<Void>> future2 = callCouponUsage(executorService, "userId2");
+        Future<ResponseEntity<Void>> future3 = callCouponUsage(executorService, "userId3");
+
+        //then
+        Assertions.assertEquals(HttpStatus.OK, future1.get().getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, future2.get().getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, future3.get().getStatusCode());
+
+        Coupon result = couponRepository.findById(coupon.getCouponCode()).get();
+        Assertions.assertEquals(3, result.getCurrentNumberOfUses());
+
+        List<CouponUsage> usages = couponUsageRepository.findAll();
+        Assertions.assertEquals(3, usages.size());
+        Assertions.assertTrue(usages.stream().anyMatch(usage -> "userId1".equals(usage.getUserId())));
+        Assertions.assertTrue(usages.stream().anyMatch(usage -> "userId2".equals(usage.getUserId())));
+        Assertions.assertTrue(usages.stream().anyMatch(usage -> "userId3".equals(usage.getUserId())));
+    }
+
+    private Future<ResponseEntity<Void>> callCouponUsage(ExecutorService executorService, String userId) {
+        return executorService.submit(() -> restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", new DtoCouponUsageRequest(userId), Void.class));
     }
 }

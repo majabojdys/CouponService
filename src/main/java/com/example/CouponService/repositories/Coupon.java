@@ -1,10 +1,8 @@
 package com.example.CouponService.repositories;
 
 import com.example.CouponService.commons.Country;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -18,7 +16,8 @@ public class Coupon {
     private Country country;
     private Integer maxNumberOfUses;
     private Integer currentNumberOfUses;
-
+    @Version
+    private Integer version;
 
     public Coupon() {
     }
@@ -47,6 +46,14 @@ public class Coupon {
         this.creationDate = creationDate;
     }
 
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
     public Integer getMaxNumberOfUses() {
         return maxNumberOfUses;
     }
@@ -63,23 +70,23 @@ public class Coupon {
         this.currentNumberOfUses = currentNumberOfUses;
     }
 
-    public Country getCountry() {
-        return country;
+    public Integer getVersion() {
+        return version;
     }
 
-    public void setCountry(Country country) {
-        this.country = country;
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Coupon coupon = (Coupon) o;
-        return Objects.equals(couponCode, coupon.couponCode) && Objects.equals(creationDate, coupon.creationDate) && country == coupon.country && Objects.equals(maxNumberOfUses, coupon.maxNumberOfUses) && Objects.equals(currentNumberOfUses, coupon.currentNumberOfUses);
+        return Objects.equals(couponCode, coupon.couponCode) && Objects.equals(creationDate, coupon.creationDate) && country == coupon.country && Objects.equals(maxNumberOfUses, coupon.maxNumberOfUses) && Objects.equals(currentNumberOfUses, coupon.currentNumberOfUses) && Objects.equals(version, coupon.version);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(couponCode, creationDate, country, maxNumberOfUses, currentNumberOfUses);
+        return Objects.hash(couponCode, creationDate, country, maxNumberOfUses, currentNumberOfUses, version);
     }
 }
