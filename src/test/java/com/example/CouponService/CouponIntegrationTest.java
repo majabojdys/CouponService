@@ -56,7 +56,7 @@ class CouponIntegrationTest extends IntegrationTest {
         //given
         Coupon coupon = CouponFactory.createDefaultCoupon();
         couponRepository.save(coupon);
-        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("user_id");
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
 
         //when
         ResponseEntity<Void> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Void.class);
@@ -66,6 +66,36 @@ class CouponIntegrationTest extends IntegrationTest {
 
         Coupon result = couponRepository.findById(coupon.getCouponCode()).get();
         Assertions.assertEquals(1, result.getCurrentNumberOfUses());
+    }
+
+    @Test
+    public void useCouponIntegrationTest_CouponDoesNotExistException() {
+        //given
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+
+        //when
+        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertEquals("COUPON_DOES_NOT_EXIST", response.getBody().errorCode());
+        Assertions.assertEquals("Coupon with ID: default_coupon doesn't exist.", response.getBody().errorDescription());
+    }
+
+    @Test
+    public void useCouponIntegrationTest_CouponUsageLimitExceededException() {
+        //given
+        Coupon coupon = CouponFactory.createCouponWithExceededLimit();
+        couponRepository.save(coupon);
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+
+        //when
+        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        Assertions.assertEquals("COUPON_LIMIT_REACHED", response.getBody().errorCode());
+        Assertions.assertEquals("The coupon: default_coupon has already been used the maximum number of times.", response.getBody().errorDescription());
     }
 
 }

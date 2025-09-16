@@ -1,6 +1,7 @@
 package com.example.CouponService;
 
 import com.example.CouponService.repositories.CouponRepository;
+import com.example.CouponService.repositories.CouponUsageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +30,9 @@ public abstract class IntegrationTest {
     protected CouponRepository couponRepository;
 
     @Autowired
+    protected CouponUsageRepository couponUsageRepository;
+
+    @Autowired
     protected TestRestTemplate restTemplate;
 
     @LocalServerPort
@@ -36,6 +40,7 @@ public abstract class IntegrationTest {
 
     @BeforeEach
     public void truncateDb() {
+        couponUsageRepository.deleteAll();
         couponRepository.deleteAll();
     }
 

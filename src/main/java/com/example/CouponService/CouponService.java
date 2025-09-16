@@ -7,6 +7,8 @@ import com.example.CouponService.exceptions.CouponDoesNotExistException;
 import com.example.CouponService.exceptions.CouponUsageLimitExceededException;
 import com.example.CouponService.repositories.Coupon;
 import com.example.CouponService.repositories.CouponRepository;
+import com.example.CouponService.repositories.CouponUsage;
+import com.example.CouponService.repositories.CouponUsageRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -16,10 +18,12 @@ import java.time.Instant;
 public class CouponService {
 
     private final CouponRepository couponRepository;
+    private final CouponUsageRepository couponUsageRepository;
     private final Clock clock;
 
-    public CouponService(CouponRepository couponRepository, Clock clock) {
+    public CouponService(CouponRepository couponRepository,CouponUsageRepository couponUsageRepository, Clock clock) {
         this.couponRepository = couponRepository;
+        this.couponUsageRepository = couponUsageRepository;
         this.clock = clock;
     }
 
@@ -37,5 +41,7 @@ public class CouponService {
         }
         coupon.setCurrentNumberOfUses(coupon.getCurrentNumberOfUses()+1);
         couponRepository.save(coupon);
+        CouponUsage couponUsage = new CouponUsage(userId, Instant.now(clock), coupon);
+        couponUsageRepository.save(couponUsage);
     }
 }

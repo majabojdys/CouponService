@@ -2,6 +2,8 @@ package com.example.CouponService.repositories;
 
 import com.example.CouponService.commons.Country;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import java.time.Instant;
 import java.util.Objects;
@@ -12,6 +14,7 @@ public class Coupon {
     @Id
     private String couponCode;
     private Instant creationDate;
+    @Enumerated(EnumType.STRING)
     private Country country;
     private Integer maxNumberOfUses;
     private Integer currentNumberOfUses;

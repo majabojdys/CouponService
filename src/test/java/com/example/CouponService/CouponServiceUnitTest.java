@@ -6,8 +6,11 @@ import com.example.CouponService.exceptions.CouponDoesNotExistException;
 import com.example.CouponService.exceptions.CouponUsageLimitExceededException;
 import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
+import com.example.CouponService.factories.CouponUsageFactory;
 import com.example.CouponService.repositories.Coupon;
 import com.example.CouponService.repositories.CouponRepository;
+import com.example.CouponService.repositories.CouponUsage;
+import com.example.CouponService.repositories.CouponUsageRepository;
 import org.junit.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,9 +26,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 public class CouponServiceUnitTest {
 
     private final CouponRepository couponRepository = Mockito.mock(CouponRepository.class);
+    private final CouponUsageRepository couponUsageRepository = Mockito.mock(CouponUsageRepository.class);
     private final Clock clock = ClockFactory.getFixedClock();
 
-    private final CouponService couponService = new CouponService(couponRepository, clock);
+    private final CouponService couponService = new CouponService(couponRepository, couponUsageRepository, clock);
 
     @Test
     public void addNewCouponTestHappyPath() {
@@ -57,6 +61,7 @@ public class CouponServiceUnitTest {
         //given
         String userId = "userId";
         Coupon coupon = CouponFactory.createDefaultCoupon();
+        CouponUsage couponUsage = CouponUsageFactory.createDefaultCouponUsage(coupon);
         Mockito.when(couponRepository.findById(coupon.getCouponCode())).thenReturn(Optional.of(coupon));
 
         //when
@@ -65,6 +70,7 @@ public class CouponServiceUnitTest {
         //then
         coupon.setCurrentNumberOfUses(1);
         Mockito.verify(couponRepository).save(coupon);
+        Mockito.verify(couponUsageRepository).save(couponUsage);
     }
 
     @Test
