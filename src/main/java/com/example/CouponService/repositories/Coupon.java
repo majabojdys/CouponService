@@ -10,11 +10,15 @@ import java.util.Objects;
 public class Coupon {
 
     @Id
+    @Column(name = "coupon_code")
     private String couponCode;
+    @Column(name = "creation_date")
     private Instant creationDate;
     @Enumerated(EnumType.STRING)
     private Country country;
+    @Column(name = "max_number_of_uses")
     private Integer maxNumberOfUses;
+    @Column(name = "current_number_of_uses")
     private Integer currentNumberOfUses;
     @Version
     private Integer version;

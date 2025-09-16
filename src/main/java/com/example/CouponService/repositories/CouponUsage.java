@@ -11,10 +11,12 @@ public class CouponUsage {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "user_id")
     private String userId;
+    @Column(name = "used_at")
     private Instant usedAt;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_code", referencedColumnName = "couponCode")
+    @JoinColumn(name = "coupon_code", referencedColumnName = "coupon_code")
     private Coupon coupon;
 
     public CouponUsage() {

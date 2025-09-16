@@ -10,6 +10,7 @@ import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsage;
 import com.example.CouponService.repositories.CouponUsageRepository;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PersistenceException;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
@@ -58,7 +59,7 @@ public class CouponService {
     }
 
     @Recover
-    private void recoverCouponUsage(Exception e, String couponCode, String userId) {
+    private void recoverCouponUsage(PersistenceException e, String couponCode, String userId) {
         throw new CouponUsageOptimisticLockException(couponCode, userId);
     }
 }
