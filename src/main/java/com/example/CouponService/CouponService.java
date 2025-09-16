@@ -10,6 +10,7 @@ import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsage;
 import com.example.CouponService.repositories.CouponUsageRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -34,6 +35,7 @@ public class CouponService {
         couponRepository.save(new Coupon(dtoCouponRequest.couponCode(), Instant.now(clock), dtoCouponRequest.country(), dtoCouponRequest.maxUsages()));
     }
 
+    @Transactional
     public void useCoupon(String couponCode, String userId) {
         Coupon coupon = couponRepository.findById(couponCode).orElseThrow(() -> new CouponDoesNotExistException(couponCode));
         if (coupon.getCurrentNumberOfUses() >= coupon.getMaxNumberOfUses()){

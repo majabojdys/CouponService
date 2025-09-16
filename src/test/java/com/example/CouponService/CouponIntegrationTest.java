@@ -6,13 +6,26 @@ import com.example.CouponService.dtos.DtoCouponUsageRequest;
 import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
 import com.example.CouponService.repositories.Coupon;
+import com.example.CouponService.repositories.CouponUsage;
+import com.example.CouponService.repositories.CouponUsageRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+
 class CouponIntegrationTest extends IntegrationTest {
+
+    @MockitoSpyBean
+    private CouponUsageRepository couponUsageRepository;
 
     @Test
     public void addNewCouponIntegrationTestHappyPath() {
@@ -98,4 +111,21 @@ class CouponIntegrationTest extends IntegrationTest {
         Assertions.assertEquals("The coupon: default_coupon has already been used the maximum number of times.", response.getBody().errorDescription());
     }
 
+    @Test
+    public void useCouponIntegration_RollbackTransaction() {
+        //given
+        Coupon coupon = CouponFactory.createDefaultCoupon();
+        couponRepository.save(coupon);
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+        doThrow(new RuntimeException("DB fail")).when(couponUsageRepository).save(any(CouponUsage.class));
+
+        //when
+        ResponseEntity<Void> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Void.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
+        Coupon result = couponRepository.findById(coupon.getCouponCode()).get();
+        Assertions.assertEquals(0, result.getCurrentNumberOfUses());
+    }
 }
