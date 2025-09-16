@@ -6,8 +6,10 @@ import com.example.CouponService.dtos.DtoCouponUsageRequest;
 import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
 import com.example.CouponService.repositories.Coupon;
+import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsage;
 import com.example.CouponService.repositories.CouponUsageRepository;
+import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,6 +29,9 @@ class CouponIntegrationTest extends IntegrationTest {
 
     @MockitoSpyBean
     private CouponUsageRepository couponUsageRepository;
+
+    @MockitoSpyBean
+    private CouponRepository couponRepository;
 
     @Test
     public void addNewCouponIntegrationTestHappyPath() {
@@ -155,6 +160,24 @@ class CouponIntegrationTest extends IntegrationTest {
         Assertions.assertTrue(usages.stream().anyMatch(usage -> "userId1".equals(usage.getUserId())));
         Assertions.assertTrue(usages.stream().anyMatch(usage -> "userId2".equals(usage.getUserId())));
         Assertions.assertTrue(usages.stream().anyMatch(usage -> "userId3".equals(usage.getUserId())));
+    }
+
+    @Test
+    public void useCouponIntegration_OptimisticLockRetryLimitReached() {
+        //given
+        Coupon coupon = CouponFactory.createDefaultCoupon();
+        couponRepository.save(coupon);
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+        doThrow(new OptimisticLockException()).when(couponRepository).save(any(Coupon.class));
+
+        //when
+        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+
+        Assertions.assertEquals("COUPON_USAGE_OPTIMISTIC_RETRIES_LIMIT_REACHED", response.getBody().errorCode());
+        Assertions.assertEquals("Exceeded max number of retries due to the optimistic lock for coupon default_coupon and user userId.", response.getBody().errorDescription());
     }
 
     private Future<ResponseEntity<Void>> callCouponUsage(ExecutorService executorService, String userId) {

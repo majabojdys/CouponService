@@ -33,4 +33,11 @@ class ControllerAdvice {
                 .body(error);
     }
 
+    @ExceptionHandler(CouponUsageOptimisticLockException.class)
+    ResponseEntity<Error> handleCouponOptimisticLockException(CouponUsageOptimisticLockException ex) {
+        Error error = new Error("COUPON_USAGE_OPTIMISTIC_RETRIES_LIMIT_REACHED", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
 }
