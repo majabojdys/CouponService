@@ -2,6 +2,9 @@ package com.example.CouponService;
 
 import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsageRepository;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,10 +17,14 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @DirtiesContext
 public abstract class IntegrationTest {
+
+    protected static WireMockServer wireMockServer;
 
     @Container
     @ServiceConnection
@@ -43,6 +50,21 @@ public abstract class IntegrationTest {
     public void truncateDb() {
         couponUsageRepository.deleteAll();
         couponRepository.deleteAll();
+        wireMockServer.resetAll();
+    }
+
+    @BeforeAll
+    static void setupWireMock() {
+        wireMockServer = new WireMockServer(options().dynamicPort());
+        wireMockServer.start();
+        System.setProperty("external.api.ip-checker.base-url", wireMockServer.baseUrl());
+    }
+
+    @AfterAll
+    static void teardownWireMock() {
+        if (wireMockServer != null) {
+            wireMockServer.stop();
+        }
     }
 
     protected String getLocalhost() {

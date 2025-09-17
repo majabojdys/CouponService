@@ -7,22 +7,19 @@ import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
 import com.example.CouponService.factories.CouponUsageFactory;
 import com.example.CouponService.repositories.Coupon;
-import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsage;
-import com.example.CouponService.repositories.CouponUsageRepository;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 import jakarta.persistence.OptimisticLockException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.http.*;
 
 import java.util.List;
 import java.util.concurrent.*;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
@@ -71,9 +68,16 @@ class CouponIntegrationTest extends IntegrationTest {
         Coupon coupon = CouponFactory.createDefaultCoupon();
         couponRepository.save(coupon);
         DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+        stubIpApiResponse();
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(dtoCoupon);
 
         //when
-        ResponseEntity<Void> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Void.class);
+        ResponseEntity<Void> response = restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Void.class
+        );
 
         //then
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -86,9 +90,16 @@ class CouponIntegrationTest extends IntegrationTest {
     public void useCouponIntegrationTest_CouponDoesNotExistException() {
         //given
         DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+        stubIpApiResponse();
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(dtoCoupon);
 
         //when
-        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+        ResponseEntity<Error> response = restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Error.class
+        );
 
         //then
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -102,9 +113,16 @@ class CouponIntegrationTest extends IntegrationTest {
         Coupon coupon = CouponFactory.createCouponWithExceededLimit();
         couponRepository.save(coupon);
         DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+        stubIpApiResponse();
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(dtoCoupon);
 
         //when
-        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+        ResponseEntity<Error> response = restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Error.class
+        );
 
         //then
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
@@ -119,9 +137,16 @@ class CouponIntegrationTest extends IntegrationTest {
         couponRepository.save(coupon);
         DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
         doThrow(new RuntimeException("DB fail")).when(couponUsageRepository).save(any(CouponUsage.class));
+        stubIpApiResponse();
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(dtoCoupon);
 
         //when
-        ResponseEntity<Void> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Void.class);
+        ResponseEntity<Void> response = restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Void.class
+        );
 
         //then
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -138,9 +163,16 @@ class CouponIntegrationTest extends IntegrationTest {
         CouponUsage couponUsage = CouponUsageFactory.createDefaultCouponUsage(coupon);
         couponUsageRepository.save(couponUsage);
         DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+        stubIpApiResponse();
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(dtoCoupon);
 
         //when
-        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+        ResponseEntity<Error> response = restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Error.class
+        );
 
         //then
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
@@ -153,6 +185,7 @@ class CouponIntegrationTest extends IntegrationTest {
         //given
         Coupon coupon = CouponFactory.createDefaultCoupon();
         couponRepository.save(coupon);
+        stubIpApiResponse();
         ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         //when
@@ -182,9 +215,16 @@ class CouponIntegrationTest extends IntegrationTest {
         couponRepository.save(coupon);
         DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
         doThrow(new OptimisticLockException()).when(couponRepository).save(any(Coupon.class));
+        stubIpApiResponse();
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(dtoCoupon);
 
         //when
-        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+        ResponseEntity<Error> response = restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Error.class
+        );
 
         //then
         Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
@@ -194,6 +234,29 @@ class CouponIntegrationTest extends IntegrationTest {
     }
 
     private Future<ResponseEntity<Void>> callCouponUsage(ExecutorService executorService, String userId) {
-        return executorService.submit(() -> restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", new DtoCouponUsageRequest(userId), Void.class));
+        HttpEntity<DtoCouponUsageRequest> entity = getHttpEntityWithIp(new DtoCouponUsageRequest(userId));
+        return executorService.submit(() -> restTemplate.exchange(
+                getLocalhost() + "/api/v1/coupons/default_coupon/apply",
+                HttpMethod.POST,
+                entity,
+                Void.class
+        ));
+    }
+
+    private void stubIpApiResponse() {
+        wireMockServer.stubFor(get(urlPathMatching("/json/5.180.147.16"))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""
+                                    { "country": "Poland",
+                                      "status": "success"
+                                    }
+                                """)));
+    }
+
+    private HttpEntity<DtoCouponUsageRequest> getHttpEntityWithIp(DtoCouponUsageRequest dtoCoupon) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Forwarded-For", "5.180.147.16");
+        return new HttpEntity<>(dtoCoupon, headers);
     }
 }

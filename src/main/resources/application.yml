@@ -15,3 +15,8 @@ spring:
 springdoc:
   swagger-ui:
     path: /swaggers
+
+external:
+  api:
+    ip-checker:
+      base-url: http://ip-api.com

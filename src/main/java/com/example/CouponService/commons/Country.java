@@ -1,9 +1,20 @@
 package com.example.CouponService.commons;
 
 public enum Country {
-    POLAND,
-    GERMANY,
-    UNITED_KINGDOM,
-    UNITED_STATES,
-    SPAIN;
+    POLAND("Poland"),
+    GERMANY("Germany"),
+    UNITED_KINGDOM("United Kingdom"),
+    UNITED_STATES("United States"),
+    SPAIN("Spain");
+
+    private final String country;
+
+    Country(String country) {
+        this.country = country;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
 }

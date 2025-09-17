@@ -48,4 +48,20 @@ class ControllerAdvice {
                 .status(HttpStatus.CONFLICT)
                 .body(error);
     }
+
+    @ExceptionHandler(ForbiddenCountryException.class)
+    ResponseEntity<Error> handleForbiddenCountryException(ForbiddenCountryException ex) {
+        Error error = new Error("FORBIDDEN_COUNTRY", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
+
+    @ExceptionHandler(IpCheckerException.class)
+    ResponseEntity<Error> handleIpCheckerException(IpCheckerException ex) {
+        Error error = new Error("IP_CHECKER_ERROR", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(error);
+    }
 }

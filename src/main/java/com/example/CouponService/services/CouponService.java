@@ -1,4 +1,4 @@
-package com.example.CouponService;
+package com.example.CouponService.services;
 
 import com.example.CouponService.dtos.DtoCouponRequest;
 import com.example.CouponService.exceptions.*;
