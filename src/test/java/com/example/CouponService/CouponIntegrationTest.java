@@ -5,6 +5,7 @@ import com.example.CouponService.dtos.DtoCouponRequest;
 import com.example.CouponService.dtos.DtoCouponUsageRequest;
 import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
+import com.example.CouponService.factories.CouponUsageFactory;
 import com.example.CouponService.repositories.Coupon;
 import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsage;
@@ -127,6 +128,24 @@ class CouponIntegrationTest extends IntegrationTest {
 
         Coupon result = couponRepository.findById(coupon.getCouponCode()).get();
         Assertions.assertEquals(0, result.getCurrentNumberOfUses());
+    }
+
+    @Test
+    public void useCouponIntegrationTest_UserHasAlreadyUsedCouponException() {
+        //given
+        Coupon coupon = CouponFactory.createDefaultCoupon();
+        couponRepository.save(coupon);
+        CouponUsage couponUsage = CouponUsageFactory.createDefaultCouponUsage(coupon);
+        couponUsageRepository.save(couponUsage);
+        DtoCouponUsageRequest dtoCoupon = new DtoCouponUsageRequest("userId");
+
+        //when
+        ResponseEntity<Error> response = restTemplate.postForEntity(getLocalhost() + "/api/v1/coupons/default_coupon/apply", dtoCoupon, Error.class);
+
+        //then
+        Assertions.assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        Assertions.assertEquals("USER_HAS_ALREADY_USED_THIS_COUPON", response.getBody().errorCode());
+        Assertions.assertEquals("User with ID: userId has already used coupon: default_coupon.", response.getBody().errorDescription());
     }
 
     @Test

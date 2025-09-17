@@ -1,10 +1,7 @@
 package com.example.CouponService;
 
 import com.example.CouponService.dtos.DtoCouponRequest;
-import com.example.CouponService.exceptions.CouponAlreadyExistsException;
-import com.example.CouponService.exceptions.CouponDoesNotExistException;
-import com.example.CouponService.exceptions.CouponUsageLimitExceededException;
-import com.example.CouponService.exceptions.CouponUsageOptimisticLockException;
+import com.example.CouponService.exceptions.*;
 import com.example.CouponService.repositories.Coupon;
 import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsage;
@@ -51,6 +48,9 @@ public class CouponService {
         Coupon coupon = couponRepository.findById(couponCode).orElseThrow(() -> new CouponDoesNotExistException(couponCode));
         if (coupon.getCurrentNumberOfUses() >= coupon.getMaxNumberOfUses()) {
             throw new CouponUsageLimitExceededException(couponCode);
+        }
+        if (couponUsageRepository.existsByUserIdAndCoupon(userId, coupon)) {
+            throw new UserHasAlreadyUsedCouponException(couponCode, userId);
         }
         coupon.setCurrentNumberOfUses(coupon.getCurrentNumberOfUses() + 1);
         couponRepository.save(coupon);

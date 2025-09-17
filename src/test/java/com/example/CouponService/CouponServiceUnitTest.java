@@ -4,6 +4,7 @@ import com.example.CouponService.dtos.DtoCouponRequest;
 import com.example.CouponService.exceptions.CouponAlreadyExistsException;
 import com.example.CouponService.exceptions.CouponDoesNotExistException;
 import com.example.CouponService.exceptions.CouponUsageLimitExceededException;
+import com.example.CouponService.exceptions.UserHasAlreadyUsedCouponException;
 import com.example.CouponService.factories.ClockFactory;
 import com.example.CouponService.factories.CouponFactory;
 import com.example.CouponService.factories.CouponUsageFactory;
@@ -63,6 +64,7 @@ public class CouponServiceUnitTest {
         Coupon coupon = CouponFactory.createDefaultCoupon();
         CouponUsage couponUsage = CouponUsageFactory.createDefaultCouponUsage(coupon);
         Mockito.when(couponRepository.findById(coupon.getCouponCode())).thenReturn(Optional.of(coupon));
+        Mockito.when(couponUsageRepository.existsByUserIdAndCoupon(userId, coupon)).thenReturn(false);
 
         //when
         couponService.useCoupon(coupon.getCouponCode(), userId);
@@ -97,6 +99,20 @@ public class CouponServiceUnitTest {
         assertThatThrownBy(() -> couponService.useCoupon(coupon.getCouponCode(), userId))
                 .isInstanceOf(CouponUsageLimitExceededException.class)
                 .hasMessageContaining("The coupon: default_coupon has already been used the maximum number of times.");
+    }
+
+    @Test
+    public void useCouponTest_UserHaveAlreadyUsedCouponException() {
+        //given
+        String userId = "userId";
+        Coupon coupon = CouponFactory.createDefaultCoupon();
+        Mockito.when(couponRepository.findById(coupon.getCouponCode())).thenReturn(Optional.of(coupon));
+        Mockito.when(couponUsageRepository.existsByUserIdAndCoupon(userId, coupon)).thenReturn(true);
+
+        //when then
+        assertThatThrownBy(() -> couponService.useCoupon(coupon.getCouponCode(), userId))
+                .isInstanceOf(UserHasAlreadyUsedCouponException.class)
+                .hasMessageContaining("User with ID: userId has already used coupon: default_coupon.");
     }
 
     private static Stream<Coupon> provideCouponsWithExceededLimit() {

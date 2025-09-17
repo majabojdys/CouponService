@@ -40,4 +40,12 @@ class ControllerAdvice {
                 .status(HttpStatus.CONFLICT)
                 .body(error);
     }
+
+    @ExceptionHandler(UserHasAlreadyUsedCouponException.class)
+    ResponseEntity<Error> handleUserHasAlreadyUsedCouponException(UserHasAlreadyUsedCouponException ex) {
+        Error error = new Error("USER_HAS_ALREADY_USED_THIS_COUPON", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
 }
