@@ -10,76 +10,97 @@ class IpUtilsUnitTest {
 
     @Test
     void getClientIpFromXForwardedFor_singleIp() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Forwarded-For")).thenReturn("192.168.1.100");
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("192.168.1.100", ip);
     }
 
     @Test
     void getClientIpFromXForwardedFor_multipleIps() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Forwarded-For")).thenReturn("192.168.1.100, 10.0.0.1, 127.0.0.1");
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("192.168.1.100", ip);
     }
 
     @Test
     void getClientIp_shouldSkipUnknownInXForwardedFor() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Forwarded-For")).thenReturn("unknown, 203.0.113.5");
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("203.0.113.5", ip);
     }
 
     @Test
     void getClientIp_shouldReturnIpFromXRealIpIfPresent() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Forwarded-For")).thenReturn(null);
         when(request.getHeader("X-Real-IP")).thenReturn("203.0.113.77");
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("203.0.113.77", ip);
     }
 
     @Test
     void getClientIp_shouldReturnIpFromForwardedHeader() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader("X-Forwarded-For")).thenReturn(null);
         when(request.getHeader("X-Real-IP")).thenReturn(null);
         when(request.getHeader("Forwarded")).thenReturn("198.51.100.22");
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("198.51.100.22", ip);
     }
 
     @Test
     void getClientIp_shouldReturnIpFromRemoteAddrIfNoHeaders() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader(anyString())).thenReturn(null);
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("127.0.0.1", ip);
     }
 
     @Test
     void getClientIp_shouldReturnEmptyStringIfNothingAvailable() {
+        //given
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getHeader(anyString())).thenReturn(null);
         when(request.getRemoteAddr()).thenReturn(null);
 
+        //when
         String ip = IpUtils.getClientIp(request);
 
+        //then
         assertEquals("", ip);
     }
 }

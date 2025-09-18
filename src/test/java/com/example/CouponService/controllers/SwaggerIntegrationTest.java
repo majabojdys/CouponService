@@ -1,4 +1,4 @@
-package com.example.CouponService;
+package com.example.CouponService.controllers;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

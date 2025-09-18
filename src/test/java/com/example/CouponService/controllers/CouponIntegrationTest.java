@@ -1,4 +1,4 @@
-package com.example.CouponService;
+package com.example.CouponService.controllers;
 
 import com.example.CouponService.commons.Error;
 import com.example.CouponService.dtos.DtoCouponRequest;

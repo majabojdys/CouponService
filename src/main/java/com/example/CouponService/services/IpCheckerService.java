@@ -19,8 +19,8 @@ public class IpCheckerService {
     }
 
     public void validateCouponCountryWithUserIp(String ip, String couponCode){
-        String country = ipCheckerClient.getCountryByIp(ip);
         Coupon coupon = couponRepository.findById(couponCode).orElseThrow(() -> new CouponDoesNotExistException(couponCode));
+        String country = ipCheckerClient.getCountryByIp(ip);
         if(!country.equals(coupon.getCountry().getCountry())){
             throw new ForbiddenCountryException(couponCode, country);
         }

@@ -1,4 +1,4 @@
-package com.example.CouponService;
+package com.example.CouponService.controllers;
 
 import com.example.CouponService.repositories.CouponRepository;
 import com.example.CouponService.repositories.CouponUsageRepository;
